@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rastreador de Peso e Treinos</title>
+    <!-- Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js para o gráfico -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- CSS personalizado -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Cabeçalho com imagem de fundo -->
+    <header class="header">
+        <div class="header-overlay"></div>
+        <div class="header-content">
+            <h1>Rastreador de Peso e Treinos</h1>
+            <p>Acompanhe sua evolução e alcance seus objetivos</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Seção para adicionar novo registro -->
+        <section class="card">
+            <div class="card-header">
+                <i class="fas fa-dumbbell"></i>
+                <h2>Registrar Peso e Treino</h2>
+            </div>
+            <div class="card-body">
+                <form id="peso-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="data">
+                                <i class="fas fa-calendar"></i> Data:
+                            </label>
+                            <input type="date" id="data" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="peso">
+                                <i class="fas fa-balance-scale"></i> Peso (kg):
+                            </label>
+                            <input type="number" id="peso" step="0.1" min="0" placeholder="Ex: 75.5" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="tipo-treino">
+                            <i class="fas fa-list"></i> Tipo de Treino:
+                        </label>
+                        <select id="tipo-treino" required>
+                            <option value="">Selecione o tipo de treino</option>
+                            <option value="peito">🏋️ Peito</option>
+                            <option value="costas">💪 Costas</option>
+                            <option value="pernas">🦵 Pernas</option>
+                            <option value="ombros">🤲 Ombros</option>
+                            <option value="bracos">💪 Braços</option>
+                            <option value="abdomen">🔥 Abdômen</option>
+                            <option value="cardio">🏃 Cardio</option>
+                            <option value="funcional">⚡ Funcional</option>
+                            <option value="yoga">🧘 Yoga</option>
+                            <option value="pilates">🤸 Pilates</option>
+                            <option value="crossfit">🏋️ CrossFit</option>
+                            <option value="natacao">🏊 Natação</option>
+                            <option value="ciclismo">🚴 Ciclismo</option>
+                            <option value="corrida">🏃 Corrida</option>
+                            <option value="descanso">😴 Descanso</option>
+                            <option value="outro">📝 Outro</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="anotacoes">
+                            <i class="fas fa-sticky-note"></i> Anotações do Dia:
+                        </label>
+                        <textarea id="anotacoes" rows="3" placeholder="Como foi o treino? Como você se sentiu? Exercícios realizados, séries, repetições, observações..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="humor">
+                            <i class="fas fa-smile"></i> Como se sentiu hoje?
+                        </label>
+                        <div class="mood-selector">
+                            <button type="button" class="mood-btn" data-mood="muito-ruim" title="Muito Ruim">😫</button>
+                            <button type="button" class="mood-btn" data-mood="ruim" title="Ruim">😞</button>
+                            <button type="button" class="mood-btn" data-mood="neutro" title="Neutro">😐</button>
+                            <button type="button" class="mood-btn" data-mood="bom" title="Bom">😊</button>
+                            <button type="button" class="mood-btn" data-mood="muito-bom" title="Muito Bom">😄</button>
+                        </div>
+                        <input type="hidden" id="humor" name="humor">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Salvar Registro
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Seção para exibir o gráfico de evolução -->
+        <section class="card">
+            <div class="card-header">
+                <i class="fas fa-chart-line"></i>
+                <h2>Evolução do Peso</h2>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="peso-chart"></canvas>
+                </div>
+                <div class="stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Peso Inicial</span>
+                        <span class="stat-value" id="peso-inicial">--</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Peso Atual</span>
+                        <span class="stat-value" id="peso-atual">--</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Diferença</span>
+                        <span class="stat-value" id="peso-diferenca">--</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total de Registros</span>
+                        <span class="stat-value" id="total-registros">--</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção de estatísticas de treino -->
+        <section class="card">
+            <div class="card-header">
+                <i class="fas fa-chart-pie"></i>
+                <h2>Estatísticas de Treino</h2>
+            </div>
+            <div class="card-body">
+                <div class="workout-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">💪</div>
+                        <div class="stat-info">
+                            <span class="stat-number" id="treinos-mes">0</span>
+                            <span class="stat-text">Treinos este mês</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🔥</div>
+                        <div class="stat-info">
+                            <span class="stat-number" id="sequencia">0</span>
+                            <span class="stat-text">Dias consecutivos</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-info">
+                            <span class="stat-number" id="tipo-favorito">--</span>
+                            <span class="stat-text">Treino favorito</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção para filtros -->
+        <section class="card">
+            <div class="card-header">
+                <i class="fas fa-filter"></i>
+                <h2>Filtros</h2>
+            </div>
+            <div class="card-body">
+                <div class="filters">
+                    <div class="filter-group">
+                        <label for="filtro-tipo">Tipo de Treino:</label>
+                        <select id="filtro-tipo">
+                            <option value="">Todos os tipos</option>
+                            <option value="peito">🏋️ Peito</option>
+                            <option value="costas">💪 Costas</option>
+                            <option value="pernas">🦵 Pernas</option>
+                            <option value="ombros">🤲 Ombros</option>
+                            <option value="bracos">💪 Braços</option>
+                            <option value="abdomen">🔥 Abdômen</option>
+                            <option value="cardio">🏃 Cardio</option>
+                            <option value="funcional">⚡ Funcional</option>
+                            <option value="yoga">🧘 Yoga</option>
+                            <option value="pilates">🤸 Pilates</option>
+                            <option value="crossfit">🏋️ CrossFit</option>
+                            <option value="natacao">🏊 Natação</option>
+                            <option value="ciclismo">🚴 Ciclismo</option>
+                            <option value="corrida">🏃 Corrida</option>
+                            <option value="descanso">😴 Descanso</option>
+                            <option value="outro">📝 Outro</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="filtro-mes">Mês:</label>
+                        <select id="filtro-mes">
+                            <option value="">Todos os meses</option>
+                        </select>
+                    </div>
+                    <button type="button" class="btn btn-secondary" id="limpar-filtros">
+                        <i class="fas fa-times"></i> Limpar Filtros
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção para exibir o histórico de registros -->
+        <section class="card">
+            <div class="card-header">
+                <i class="fas fa-history"></i>
+                <h2>Histórico de Registros</h2>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="historico-table">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Peso (kg)</th>
+                                <th>Variação</th>
+                                <th>Tipo de Treino</th>
+                                <th>Humor</th>
+                                <th>Anotações</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historico-body">
+                            <!-- Dados serão inseridos via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="sem-registros" class="hidden">
+                    <div class="empty-state">
+                        <i class="fas fa-clipboard-list"></i>
+                        <h3>Nenhum registro encontrado</h3>
+                        <p>Adicione seu primeiro registro de peso e treino para começar a acompanhar sua evolução!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção de motivação com imagens -->
+        <section class="card">
+            <div class="card-header">
+                <i class="fas fa-fire"></i>
+                <h2>Motivação</h2>
+            </div>
+            <div class="card-body">
+                <div class="quote">
+                    <blockquote id="quote-text">
+                        "O sucesso não é dado. É conquistado. Na pista, no campo, na academia. Com sangue, suor e o trabalho ocasional de uma lágrima."
+                    </blockquote>
+                </div>
+                <div class="gallery">
+                    <div class="gallery-item">
+                        <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80" alt="Fitness motivação">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80" alt="Fitness motivação">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80" alt="Fitness motivação">
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 Rastreador de Peso e Treinos. Todos os direitos reservados.</p>
+    </footer>
+
+    <!-- Toast para notificações -->
+    <div id="toast" class="toast">
+        <div class="toast-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="toast-message">Registro salvo com sucesso!</div>
+        <div class="toast-progress"></div>
+    </div>
+
+    <!-- Modal para editar registro -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Editar Registro</h3>
+                <button type="button" class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="edit-form">
+                    <input type="hidden" id="edit-id">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit-data">Data:</label>
+                            <input type="date" id="edit-data" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-peso">Peso (kg):</label>
+                            <input type="number" id="edit-peso" step="0.1" min="0" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-tipo-treino">Tipo de Treino:</label>
+                        <select id="edit-tipo-treino" required>
+                            <option value="">Selecione o tipo de treino</option>
+                            <option value="peito">🏋️ Peito</option>
+                            <option value="costas">💪 Costas</option>
+                            <option value="pernas">🦵 Pernas</option>
+                            <option value="ombros">🤲 Ombros</option>
+                            <option value="bracos">💪 Braços</option>
+                            <option value="abdomen">🔥 Abdômen</option>
+                            <option value="cardio">🏃 Cardio</option>
+                            <option value="funcional">⚡ Funcional</option>
+                            <option value="yoga">🧘 Yoga</option>
+                            <option value="pilates">🤸 Pilates</option>
+                            <option value="crossfit">🏋️ CrossFit</option>
+                            <option value="natacao">🏊 Natação</option>
+                            <option value="ciclismo">🚴 Ciclismo</option>
+                            <option value="corrida">🏃 Corrida</option>
+                            <option value="descanso">😴 Descanso</option>
+                            <option value="outro">📝 Outro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-anotacoes">Anotações:</label>
+                        <textarea id="edit-anotacoes" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Como se sentiu?</label>
+                        <div class="mood-selector">
+                            <button type="button" class="mood-btn edit-mood" data-mood="muito-ruim" title="Muito Ruim">😫</button>
+                            <button type="button" class="mood-btn edit-mood" data-mood="ruim" title="Ruim">😞</button>
+                            <button type="button" class="mood-btn edit-mood" data-mood="neutro" title="Neutro">😐</button>
+                            <button type="button" class="mood-btn edit-mood" data-mood="bom" title="Bom">😊</button>
+                            <button type="button" class="mood-btn edit-mood" data-mood="muito-bom" title="Muito Bom">😄</button>
+                        </div>
+                        <input type="hidden" id="edit-humor">
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" id="cancel-edit">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>
