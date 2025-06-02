@@ -111,6 +111,22 @@ function adicionarRegistro(e) {
   const anotacoes = document.getElementById("anotacoes").value
   const humor = document.getElementById("humor").value
 
+  // Validações
+  if (!data) {
+    mostrarToast("Por favor, selecione uma data!", "error")
+    return
+  }
+
+  if (!peso || peso <= 0) {
+    mostrarToast("Por favor, informe um peso válido!", "error")
+    return
+  }
+
+  if (!tipoTreino) {
+    mostrarToast("Por favor, selecione o tipo de treino!", "error")
+    return
+  }
+
   if (!humor) {
     mostrarToast("Por favor, selecione como você se sentiu hoje!", "warning")
     return
@@ -131,7 +147,7 @@ function adicionarRegistro(e) {
     data,
     peso,
     tipoTreino,
-    anotacoes,
+    anotacoes: anotacoes || "",
     humor,
     timestamp: new Date().toISOString(),
   }
@@ -340,7 +356,7 @@ function salvarEdicao(e) {
       data,
       peso,
       tipoTreino,
-      anotacoes,
+      anotacoes: anotacoes || "",
       humor,
     }
 
@@ -596,7 +612,13 @@ function atualizarEstatisticasTreino() {
 
 // Salvar dados no localStorage
 function salvarDados() {
-  localStorage.setItem("registrosPeso", JSON.stringify(registros))
+  try {
+    localStorage.setItem("registrosPeso", JSON.stringify(registros))
+    console.log("Dados salvos com sucesso:", registros)
+  } catch (error) {
+    console.error("Erro ao salvar dados:", error)
+    mostrarToast("Erro ao salvar dados!", "error")
+  }
 }
 
 // Formatar data para exibição
@@ -667,8 +689,10 @@ const frasesMotivacionais = [
 // Alterar frase motivacional aleatoriamente
 function alterarFraseMotivacional() {
   const quoteElement = document.getElementById("quote-text")
-  const fraseAleatoria = frasesMotivacionais[Math.floor(Math.random() * frasesMotivacionais.length)]
-  quoteElement.textContent = fraseAleatoria
+  if (quoteElement) {
+    const fraseAleatoria = frasesMotivacionais[Math.floor(Math.random() * frasesMotivacionais.length)]
+    quoteElement.textContent = fraseAleatoria
+  }
 }
 
 // Alterar frase a cada 10 segundos
@@ -708,6 +732,11 @@ function exportarDados() {
 
   mostrarToast("Dados exportados com sucesso!", "success")
 }
+
+// Tornar funções globais para uso nos botões HTML
+window.editarRegistro = editarRegistro
+window.excluirRegistro = excluirRegistro
+window.exportarDados = exportarDados
 
 // Adicionar botão de exportação (pode ser chamado via console ou adicionado à interface)
 console.log("💡 Dica: Digite exportarDados() no console para exportar seus dados!")
